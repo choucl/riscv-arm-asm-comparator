@@ -1,21 +1,22 @@
-S        ::= Title InsList $                   // pred: {Numbers, a, b, c, d, e, f}
+S        ::= Title InsList $             // pred: {Numbers, a, b, c, d, e, f}
 
-Title    ::= Hex LblName ':' '\n'              // pred: {Numbers, a, b, c, d, e, f}
+Title    ::= Hex LblName ':' '\n'        // pred: {Numbers, a, b, c, d, e, f}
 
-InsList  ::= Ins InsList                       // pred: {Numbers, a, b, c, d, e, f}
-          | null                               // pred: {'\n', $}
+InsList  ::= Ins InsList                 // pred: {Numbers, a, b, c, d, e, f}
+           | null                        // pred: {'\n', $}
 
-Ins      ::= Hex ':' Hex Op ArgList Lbl '\n'   // pred: {Numbers, a, b, c, d, e, f}
+Ins      ::= Hex ':' Hex Op ArgList '\n' // pred: {Numbers, a, b, c, d, e, f}
 
-ArgList  ::= Arg MoreArgs                      // pred: {arbitaray string w/o ws}
+ArgList  ::= Arg MoreArgs                // pred: {arbitaray string w/o ws}
+           | null                        // pred: {'\n'}
 
-MoreArgs ::= ',' Arg                           // pred: {'\n'}
-           | null                              // pred: {'\n'}
+MoreArgs ::= ',' Arg MoreArgs            // pred: {','}
+           | null                        // pred: {'\n'}
 
-Lbl      ::= LblName                           // pred: {'<'}
-           | null                              // pred: {'\n'}
+Lbl      ::= LblName                     // pred: {'<'}
+           | null                        // pred: {',', '\n'}
 
-LblName  ::= '<' Name '>'                      // pred: {'<'}
+LblName  ::= '<' Name '>'                // pred: {'<'}
 
 Arg      ::= {arbitaray string w/o ws(reg names, imm or offset)} Lbl
 Hex      ::= {Numbers, a, b, c, d, e, f}+

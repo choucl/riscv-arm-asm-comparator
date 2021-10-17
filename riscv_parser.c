@@ -4,8 +4,6 @@
 #include <string.h>
 #define BUF_SZ 128
 
-int tk_len;
-
 char *p;           // current position in the file
 char *tk;          // point to current token
 char buf[BUF_SZ];  // buffer to store the content of a line
@@ -14,15 +12,19 @@ FILE *fp;
 
 void next();
 int title();
-INS *ins();
+int ins(INS **i);
 int arg_list();
+int arg();
+int more_args();
 int lbl();
 int lbl_name(char **name);
 
 
 /*
  * Function that matches terminals. Return 1 when match successfully, 0
- * otherwise. The related value is passed out via parameter of reference
+ * otherwise. The related value is passed out via parameter of reference. When
+ * matching successfully, it call next() to get to the next token for further 
+ * parsing.
  */
 int hex(int *val);
 int astring(char **str);
@@ -33,17 +35,13 @@ void next() {
     ++p;
 
   /*
-   * Check if it reach the end of the line, if true, read a new line and
-   * continue.
+   * If it comes accross '#', which means the rest of the line are just comment,
+   * read until it reach the '\n' symbol
    */
-  if (!*p || *p == '#') {
-    fgets(buf, BUF_SZ, fp);
-    p = buf;
-    next();
-  } else {
-    tk = p;
-    printf("tk: '%c'\n", *tk);
-  }
+  if (*p == '#')
+    while (*p != '\n')
+      ++p;  
+  tk = p;
 }
 
 int title() {
@@ -51,29 +49,58 @@ int title() {
   char *name;
 
   return hex(&val) && lbl_name(&name) && match(':') && match('\n') &&
-         printf("%d with name %s\n", val, name);
+         printf("Parsing routine: %s @0x%x\n", name, val);
 }
 
-INS *ins() {
-  /*
-  int addr, argc;
+int ins(INS **i) {
+  int addr, argc, mc;
   char *op, *name, **argv;
-  if (!hex(&addr))
-    return NULL;
-  if (!match(':'))
-    return NULL;
-  if (!hex(NULL))
-    return NULL;
-  if (!astring(&op))
-    return NULL;
-  if (!arg_list())
-    return NULL;
-  if (!lbl())
-    return NULL;
-  if (!match('\n'))
-    return NULL;
-    */
-  return NULL;
+
+  // TODO: Use the smart format if possible
+  if (hex(&addr) && match(':') && hex(&mc) && astring(&op) && arg_list() && 
+      match('\n')) {
+    printf("ins: %x, %x, %s\n", addr, mc, op);
+    return 1;
+  }
+
+  return 0;
+}
+
+int arg_list() {
+  if (*tk == '\n') {
+    return 1;
+  } else {
+    return arg() && more_args();
+  }
+  return 0;
+}
+
+int arg() {
+  char *arg_str;
+  return astring(&arg_str) && puts(arg_str) && lbl();
+}
+
+int more_args() {
+  if (*tk == ',') {
+    return match(',') && arg() && more_args();
+  } else if (*tk == '\n') {
+    return 1;
+  } else {
+    puts("Parse error");
+    return 0;
+  }
+}
+
+int lbl() {
+  char *name;
+  if (*tk == '<') {
+    return lbl_name(&name);
+  } else if (*tk == '\n' || *tk == ',') {
+    return 1;
+  } else {
+    puts("Parse error");
+    return 0;
+  }
 }
 
 int hex(int *val) {
@@ -141,9 +168,13 @@ INS* riscv_parse(char* filename, int *ret_sz) {
   }
 
   while (fgets(buf, BUF_SZ, fp)) {
-    INS *i = ins();
-    if (!i) continue;
-
+    printf("|%s", buf);
+    p = buf;
+    next();
+    INS *i;
+    if (ins(&i)) {
+      puts("==========");
+    }
     // assemble i
   }
 
