@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     for (int j = 0; j < fcount; ++j) { 
       INS** ins = (i == 0)? riscv_parse(subnames[i][j], &ret_sz) :
           aarch_parse(subnames[i][j], &ret_sz);
-      INS** bb = findbb(*ins, &ret_sz);
+      INS*** bb = findbb(*ins, &ret_sz);
     }
   }
   return 0;
