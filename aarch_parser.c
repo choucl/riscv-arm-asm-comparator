@@ -59,6 +59,19 @@ INS* aarch_parse(char* filename, int* ret_sz) {
     char* arg_str = malloc(sizeof(char) * (strlen(line) - arg_start + 1));
     strncpy(arg_str, &line[arg_start], strlen(line) - arg_start + 1);
     curins.argv = arg_parse(arg_str, &(curins.argc));
+
+    // find lbl_name
+    curins.lbl_name = NULL;
+    for (int i = 0; i < strlen(line); ++i) {
+      if (line[i] == '<') { // find
+        curins.lbl_name = malloc(sizeof(char) * (strlen(line) - i + 1));
+        int lbl_start = i++;
+        while (line[i] != '>') {
+          (curins.lbl_name)[i - lbl_start - 1] = line[i]; 
+          i++;
+        }
+      }
+    }
       
     printf("%d\n", ins_count);
     printf("%d %s\n", curins.addr, curins.op);
