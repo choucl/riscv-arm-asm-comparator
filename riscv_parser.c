@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define BUF_SZ 128
+#define MAX_ARGC 8
 
 char *p;           // current position in the file
 char *tk;          // point to current token
@@ -12,13 +13,12 @@ FILE *fp;
 
 void next();
 int title();
-int ins(INS **i);
-int arg_list();
-int arg();
-int more_args();
-int lbl();
+int ins(INS *i);
+int arg_list(INS *i);
+int arg(INS *i);
+int more_args(INS *i);
+int lbl(char **name);
 int lbl_name(char **name);
-
 
 /*
  * Function that matches terminals. Return 1 when match successfully, 0
@@ -47,42 +47,54 @@ void next() {
 int title() {
   int val;
   char *name;
-
   return hex(&val) && lbl_name(&name) && match(':') && match('\n') &&
          printf("Parsing routine: %s @0x%x\n", name, val);
 }
 
-int ins(INS **i) {
-  int addr, argc, mc;
-  char *op, *name, **argv;
+int ins(INS *i) {
+  int addr, mc;
+  char *op;
 
-  // TODO: Use the smart format if possible
-  if (hex(&addr) && match(':') && hex(&mc) && astring(&op) && arg_list() && 
+  if (hex(&addr) && match(':') && hex(&mc) && astring(&op) && arg_list(i) && 
       match('\n')) {
-    printf("ins: %x, %x, %s\n", addr, mc, op);
+    i->addr = addr;
+    i->op = op;
+    char **tmp = realloc(i->argv, i->argc * sizeof(char *));  // shrink
+    if (tmp)
+      i->argv = tmp;
     return 1;
   }
-
   return 0;
 }
 
-int arg_list() {
+int arg_list(INS *i) {
   if (*tk == '\n') {
+    i->argc = 0;
+    i->argv = NULL;
+    i->lbl_name = NULL;
     return 1;
   } else {
-    return arg() && more_args();
+    i->argc = 0;
+    i->argv = malloc(MAX_ARGC * sizeof(char *));
+    return arg(i) && more_args(i);
+  }
+}
+
+int arg(INS *i) {
+  char *arg_str, *name;
+  if (astring(&arg_str) && lbl(&name)) {
+    if (i->argc < MAX_ARGC)
+      i->argv[(i->argc)++] = arg_str;
+    if (name)
+      i->lbl_name = name;
+    return 1;
   }
   return 0;
 }
 
-int arg() {
-  char *arg_str;
-  return astring(&arg_str) && puts(arg_str) && lbl();
-}
-
-int more_args() {
+int more_args(INS *i) {
   if (*tk == ',') {
-    return match(',') && arg() && more_args();
+    return match(',') && arg(i) && more_args(i);
   } else if (*tk == '\n') {
     return 1;
   } else {
@@ -91,11 +103,11 @@ int more_args() {
   }
 }
 
-int lbl() {
-  char *name;
+int lbl(char **name) {
   if (*tk == '<') {
-    return lbl_name(&name);
+    return lbl_name(name);
   } else if (*tk == '\n' || *tk == ',') {
+    *name = NULL;
     return 1;
   } else {
     puts("Parse error");
@@ -113,7 +125,6 @@ int hex(int *val) {
       *val = *val * 16 + (*p - 'a' + 10);  // 0xa is 10 in dec
     else
       break;
-
     ++p;
   }
 
@@ -167,15 +178,25 @@ INS* riscv_parse(char* filename, int *ret_sz) {
     printf("File: %s contains no title\n", filename);
   }
 
+  *ret_sz = 0;
   while (fgets(buf, BUF_SZ, fp)) {
-    printf("|%s", buf);
     p = buf;
     next();
-    INS *i;
-    if (ins(&i)) {
-      puts("==========");
+
+    INS *i = malloc(sizeof(INS));
+
+    if (ins(i)) {
+      printf("%d\t%s\t[%d args]\t", *ret_sz, i->op, i->argc);
+      for (int j = 0; j < i->argc; ++j) {
+        printf("%s\t", i->argv[j]);
+      }
+      if (i->lbl_name) {
+        printf("<%s>", i->lbl_name);
+      }
+      puts("");
+      ++(*ret_sz);
+
     }
-    // assemble i
   }
 
   return NULL;
