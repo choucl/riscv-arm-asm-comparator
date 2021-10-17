@@ -8,7 +8,7 @@ InsList ::= Ins InsList                       // pred: {Numbers, a, b, c, d, e, 
 Ins ::= Hex ':' Hex Op ArgList Lbl '\n'       // pred: {Numbers, a, b, c, d, e, f}
 
 ArgList ::= Arg ',' ArgList                   // pred: {arbitaray string}
-          | null                              // pred: {'\n'}
+          | null                              // pred: {'<', '\n'}
 
 Lbl ::= LblName                               // pred: {'<'}
       | null                                  // pred: {'\n'}
