@@ -5,10 +5,13 @@ Title ::= Hex LblName ':' '\n'                // pred: {Numbers, a, b, c, d, e, 
 InsList ::= Ins InsList                       // pred: {Numbers, a, b, c, d, e, f}
           | null                              // pred: {'\n'}
 
-Ins ::= Hex ':' Hex Op ArgList LblName '\n'   // pred: {Numbers, a, b, c, d, e, f}
+Ins ::= Hex ':' Hex Op ArgList Lbl '\n'       // pred: {Numbers, a, b, c, d, e, f}
 
 ArgList ::= Arg ',' ArgList                   // pred: {arbitaray string}
           | null                              // pred: {'\n'}
+
+Lbl ::= LblName                               // pred: {'<'}
+      | null                                  // pred: {'\n'}
 
 LblName ::= '<' Name '>'                      // pred: {'<'}
 
