@@ -7,7 +7,7 @@
  * argv: instruction arguments
  * argc: argument count
  * lbl_name: the name of the label for a branch/jump instruction
- * is_end: flag indicates if the ins is end point
+ * is_leader: flag indicates if the ins is a leader
  */
 typedef struct ins {
   int addr;
