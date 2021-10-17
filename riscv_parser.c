@@ -68,10 +68,10 @@ int ins(INS *i) {
 }
 
 int arg_list(INS *i) {
+  i->lbl_name = NULL;
   if (*tk == '\n') {
     i->argc = 0;
     i->argv = NULL;
-    i->lbl_name = NULL;
     return 1;
   } else {
     i->argc = 0;
@@ -140,8 +140,6 @@ int lbl_name(char **name) {
 
 int astring(char **str) {
   // Find the string w/o delimiter
-  char *s;
-
   while (*p > ' ' && *p != '<' && *p != '>' && *p != ',' && *p != ':')
     ++p;
 
@@ -150,7 +148,7 @@ int astring(char **str) {
     *str = NULL;
     return 0;
   }
-  *str = malloc(len + 1);
+  *str = calloc(len + 1, sizeof(char));
   strncpy(*str, tk, len);
   next();
   return 1;
@@ -164,7 +162,7 @@ int match(char c) {
   return 1;
 }
 
-INS* riscv_parse(char* filename, int *ret_sz) {
+INS** riscv_parse(char* filename, int *ret_sz) {
   fp = fopen(filename, "r");
 
   if (!fp)
@@ -178,26 +176,38 @@ INS* riscv_parse(char* filename, int *ret_sz) {
     printf("File: %s contains no title\n", filename);
   }
 
-  *ret_sz = 0;
+  int max_ret_sz = 32, ins_idx = 0;
+  INS **ret_ins = malloc(max_ret_sz * sizeof(INS *));
   while (fgets(buf, BUF_SZ, fp)) {
     p = buf;
     next();
 
     INS *i = malloc(sizeof(INS));
 
-    if (ins(i)) {
-      printf("%d\t%s\t[%d args]\t", *ret_sz, i->op, i->argc);
-      for (int j = 0; j < i->argc; ++j) {
-        printf("%s\t", i->argv[j]);
-      }
-      if (i->lbl_name) {
-        printf("<%s>", i->lbl_name);
-      }
-      puts("");
-      ++(*ret_sz);
-
+    // Starting parsing an instruction from non-terminal Ins
+    if (!ins(i)) {
+      free(i);
+      continue;
     }
+
+    /* The ret_ins is implemented using dynamc tables. When it if full, we
+     * reallocate with doubled size.
+     */
+    if (ins_idx == max_ret_sz) {
+      max_ret_sz *= 2;
+      INS **tmp = realloc(ret_ins, max_ret_sz * sizeof(INS *));
+      if (!tmp) {
+        printf("Failed reallocating memory for size: %d\n", max_ret_sz);
+        break;  // If failed, just return what we have got so far
+      }
+      ret_ins = tmp;
+    }
+    ret_ins[ins_idx++] = i;
   }
 
-  return NULL;
+  *ret_sz = ins_idx;
+  INS **tmp = realloc(ret_ins, *ret_sz * sizeof(INS));  // shrink
+  if (tmp)
+    ret_ins = tmp;
+  return ret_ins;
 }
