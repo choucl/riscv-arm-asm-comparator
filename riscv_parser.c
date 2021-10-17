@@ -20,8 +20,7 @@ int more_args(INS *i);
 int lbl(char **name);
 int lbl_name(char **name);
 
-/*
- * Function that matches terminals. Return 1 when match successfully, 0
+/* Function that matches terminals. Return 1 when match successfully, 0
  * otherwise. The related value is passed out via parameter of reference. When
  * matching successfully, it call next() to get to the next token for further 
  * parsing.
@@ -34,8 +33,7 @@ void next() {
   while (*p == ' ' || *p == '\t')
     ++p;
 
-  /*
-   * If it comes accross '#', which means the rest of the line are just comment,
+  /* If it comes accross '#', which means the rest of the line are just comment,
    * read until it reach the '\n' symbol
    */
   if (*p == '#')
@@ -47,6 +45,7 @@ void next() {
 int title() {
   int val;
   char *name;
+
   return hex(&val) && lbl_name(&name) && match(':') && match('\n') &&
          printf("Parsing routine: %s @0x%x\n", name, val);
 }
@@ -68,20 +67,21 @@ int ins(INS *i) {
 }
 
 int arg_list(INS *i) {
+  i->argc = 0;
   i->lbl_name = NULL;
+
   if (*tk == '\n') {
-    i->argc = 0;
     i->argv = NULL;
     return 1;
   } else {
-    i->argc = 0;
-    i->argv = malloc(MAX_ARGC * sizeof(char *));
+    i->argv = malloc(MAX_ARGC * sizeof(char *));  // argv not empty for i
     return arg(i) && more_args(i);
   }
 }
 
 int arg(INS *i) {
   char *arg_str, *name;
+
   if (astring(&arg_str) && lbl(&name)) {
     if (i->argc < MAX_ARGC)
       i->argv[(i->argc)++] = arg_str;
@@ -165,8 +165,10 @@ int match(char c) {
 INS** riscv_parse(char* filename, int *ret_sz) {
   fp = fopen(filename, "r");
 
-  if (!fp)
+  if (!fp) {
+    *ret_sz = 0;
     return NULL;
+  }
 
   fgets(buf, BUF_SZ, fp);
   p = buf;
@@ -184,14 +186,14 @@ INS** riscv_parse(char* filename, int *ret_sz) {
 
     INS *i = malloc(sizeof(INS));
 
-    // Starting parsing an instruction from non-terminal Ins
+    // Start parsing an instruction from the non-terminal Ins
     if (!ins(i)) {
       free(i);
       continue;
     }
 
-    /* The ret_ins is implemented using dynamc tables. When it if full, we
-     * reallocate with doubled size.
+    /* The ret_ins is implemented using dynamic tables. When it if full, we
+     * reallocate it with doubled size.
      */
     if (ins_idx == max_ret_sz) {
       max_ret_sz *= 2;
