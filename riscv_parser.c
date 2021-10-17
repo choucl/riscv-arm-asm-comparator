@@ -1,6 +1,7 @@
 #include "core.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define BUF_SZ 128
 
 int tk_len;
@@ -13,15 +14,14 @@ FILE *fp;
 
 void next();
 void title();
-void ins_list();
 int hex();
-int lbl_name();
-void ins();
+char *lbl_name();
+INS *ins();
 void op();
 void arg_list();
 void arg();
-void astring();
-void flush();
+char *astring();
+int match(char c);
 
 void next() {
   while (*p == ' ' || *p == '\t')
@@ -31,67 +31,85 @@ void next() {
    * Check if it reach the end of the line, if true, read a new line and
    * continue.
    */
-  if (*p == '\n' || *p == '\0') {
+  if (!*p) {
     fgets(buf, BUF_SZ, fp);
     p = buf;
     next();
   } else {
     tk = p;
+    printf("tk: '%c'\n", *tk);
   }
 }
 
 void title() {
-
   int val = hex();
+  if (!tk_len) return;  // Failed reading a hex
   next();
 
+  char *name = lbl_name();
+  if (!name) return;
+  next();
 
+  if (!match(':')) return;
+  next();
+
+  if (!match('\n')) return;
+  next();
+
+  printf("%d with name %s\n", val, name);
 }
 
 int hex() {
   int val = 0; 
 
-  /*
-   * Check if the upcoming character is a valid digit of a hex number, if not 
-   * return -1 to indicate invalidation.
-   */
-  if (!(*p > '0' && *p < '9' || *p > 'a' && *p < 'f'))
-    return -1;
-  
-  do {
-    if (*p > '0' && *p < '9')
+  while (*p) {
+    if (*p >= '0' && *p <= '9')
       val = val * 16 + (*p - '0');
-    else if (*p > 'a' && *p < 'f')
+    else if (*p >= 'a' && *p <= 'f')
       val = val * 16 + (*p - 'a' + 10);  // 0xa is 10 in dec
     else
       break;
+
     ++p;
-  } while (*p);
+  }
 
   tk_len = p - tk;
   return val;
 }
 
-int lbl_name() {
-  if (*tk != '<') return -1;
+char *lbl_name() {
+  char *name;
+
+  if (!match('<')) return NULL;
   next();
-  astring();
-  if (!tk_len) return -1;
+
+  name = astring();
+  if (!name) return NULL;
   next();
-  if (*tk != '>') return -1;
-  return 0;
+
+  if (!match('>')) return NULL;
+
+  return name;
 }
 
-void ins_list() {
-
-}
-
-void astring() {
+char *astring() {
   // Find the string w/o delimiter
-  while (*p > ' ' && *p != '<' && *p != '>' && *p != ',' && *p != ':') {
+  char *s;
+
+  while (*p > ' ' && *p != '<' && *p != '>' && *p != ',' && *p != ':')
     ++p;
-  }
-  tk_len = p - tk;
+
+  int len = p - tk;
+  s = malloc(len + 1);
+  strncpy(s, tk, len);
+
+  return s;
+}
+
+int match(char c) {
+  if (*tk != c) return 0;
+  ++p;
+  return 1;
 }
 
 INS* riscv_parse(char* filename, int *ret_sz) {
@@ -100,8 +118,20 @@ INS* riscv_parse(char* filename, int *ret_sz) {
   if (!fp)
     return NULL;
 
+  fgets(buf, BUF_SZ, fp);
+  p = buf;
   next();
+
   title();
+
+  /*
+  while (fgets(buf, BUF_SZ, fp)) {
+    INS *i = ins();
+    if (!i) continue;
+
+    assemble i
+  }
+  */
 
   return NULL;
 }
