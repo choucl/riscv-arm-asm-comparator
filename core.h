@@ -33,7 +33,7 @@ char** split_routine(char* filename, int type, int* ret_sz);
  * output ret_sz: number of outputs 
  * output: instructions array of the routine
  */
-INS* aarch_parse(char* filename, int* ret_sz);
+INS** aarch_parse(char* filename, int* ret_sz);
 
 /*
  * parse RISC-V asm file
@@ -41,7 +41,7 @@ INS* aarch_parse(char* filename, int* ret_sz);
  * output ret_sz: number of outputs 
  * output: instructions array of the routine
  */
-INS* riscv_parse(char* filename, int* ret_sz);
+INS** riscv_parse(char* filename, int* ret_sz);
 
 /*
  * find the basic block from instructions

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char** split_subroutine(char* filename, int type, int* ret_sz) {
+char** split_routine(char* filename, int type, int* ret_sz) {
   char** subnames = malloc(sizeof(char*) * 250);
   *ret_sz = 0;
 
@@ -13,8 +13,8 @@ char** split_subroutine(char* filename, int type, int* ret_sz) {
     exit(-1);
   }
 
-  char* line = malloc(sizeof(char) * 128);
-  char* name = malloc(sizeof(char) * 50);
+  char* line = calloc(128, sizeof(char));
+  char* name = calloc(50, sizeof(char));
   int addr, addrlen;
   FILE* fo; // output file
   int subroutine_start = 0;
@@ -27,7 +27,7 @@ char** split_subroutine(char* filename, int type, int* ret_sz) {
         if (name[0] == '_') continue;
         subroutine_start = 1;
         strncat(name, (type)? ".aarch.o" : ".riscv.o", 9);
-        subnames[(*ret_sz)] = malloc(sizeof(char) * strlen(name) + 1);
+        subnames[(*ret_sz)] = calloc(strlen(name) + 1, sizeof(char));
         strncpy(subnames[(*ret_sz)], name, strlen(name) + 1);
         fo = fopen(name, "w+");
         fprintf(fo, "%s", line);
