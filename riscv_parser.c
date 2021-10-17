@@ -12,6 +12,7 @@ char buf[BUF_SZ];  // buffer to store the content of a line
 
 FILE *fp;
 
+void next();
 int title();
 INS *ins();
 int arg_list();
@@ -26,7 +27,6 @@ int lbl_name(char **name);
 int hex(int *val);
 int astring(char **str);
 int match(char c);
-void next();
 
 void next() {
   while (*p == ' ' || *p == '\t')
@@ -36,7 +36,7 @@ void next() {
    * Check if it reach the end of the line, if true, read a new line and
    * continue.
    */
-  if (!*p) {
+  if (!*p || *p == '#') {
     fgets(buf, BUF_SZ, fp);
     p = buf;
     next();
@@ -50,19 +50,12 @@ int title() {
   int val;
   char *name;
 
-  if (!hex(&val))
-    return 0;
-  if (!lbl_name(&name))
-    return 0;
-  if (!match(':'))
-    return 0;
-  if (!match('\n'))
-    return 0;
-  printf("%d with name %s\n", val, name);
-  return 1;
+  return hex(&val) && lbl_name(&name) && match(':') && match('\n') &&
+         printf("%d with name %s\n", val, name);
 }
 
 INS *ins() {
+  /*
   int addr, argc;
   char *op, *name, **argv;
   if (!hex(&addr))
@@ -77,6 +70,9 @@ INS *ins() {
     return NULL;
   if (!lbl())
     return NULL;
+  if (!match('\n'))
+    return NULL;
+    */
   return NULL;
 }
 
@@ -94,20 +90,14 @@ int hex(int *val) {
     ++p;
   }
 
-  if (p == tk) return 0;
-
+  if (p == tk)
+    return 0;
   next();
   return 1;
 }
 
 int lbl_name(char **name) {
-  if (!match('<'))
-    return 0;
-  if (!astring(name))
-    return 0;
-  if (!match('>'))
-    return 0;
-  return 1;
+  return match('<') && astring(name) && match('>');
 }
 
 int astring(char **str) {
