@@ -26,7 +26,7 @@ char** split_subroutine(char* filename, int type, int* ret_sz) {
           && addrlen == 16) { // find first subroutine
         if (name[0] == '_') continue;
         subroutine_start = 1;
-        strncat(name, ".o", 3);
+        strncat(name, (type)? ".aarch.o" : ".riscv.o", 9);
         subnames[(*ret_sz)] = malloc(sizeof(char) * strlen(name) + 1);
         strncpy(subnames[(*ret_sz)], name, strlen(name) + 1);
         fo = fopen(name, "w+");
@@ -45,7 +45,7 @@ char** split_subroutine(char* filename, int type, int* ret_sz) {
             continue;
           }
           subroutine_start = 1;
-          strncat(name, ".o", 3);
+          strncat(name, (type)? ".aarch.o" : ".riscv.o", 9);
           subnames[(*ret_sz)] = malloc(sizeof(char) * strlen(name) + 1);
           strncpy(subnames[(*ret_sz)], name, strlen(name) + 1);
           fo = fopen(name, "w+");
