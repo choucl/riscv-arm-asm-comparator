@@ -8,24 +8,27 @@ char** arg_parse(char* arg_str, int* argc) {
   int count = 0;
   for (int i = 0; i < strlen(arg_str); ++i) {
     int arg_len = 0;
-    char* arg_cur = malloc(sizeof(char) * 16);
+    char* arg_cur = malloc(sizeof(char) * 20);
     while (arg_str[i] == ' ' || arg_str[i] == '\t') ++i; // consume white spaces
     if (arg_str[i] == '<' || arg_str[i] == '/') break;
     if (arg_str[i] == '[') {
-      while(arg_str[i] && arg_str[i] != ']') arg_cur[arg_len++] = arg_str[i++];
+      while (arg_str[i] && arg_str[i] != ']') arg_cur[arg_len++] = arg_str[i++];
       arg_cur[arg_len++] = ']';
       i++;
       if (arg_str[i] && arg_str[i] == '!') {
         arg_cur[arg_len++] = '!';
         i++;
       }
-    } else {
-      while(arg_str[i] && (arg_str[i] != ',' && arg_str[i] != '\n' 
+      arg_cur[arg_len] = '\0';
+      arg_list[count++] = arg_cur;
+    } else if (arg_str[i] != '\n') {
+      while (arg_str[i] && (arg_str[i] != ',' && arg_str[i] != '\n' 
             && arg_str[i] != ' ' && arg_str[i] != '<' && arg_str[i] != '/'))
         arg_cur[arg_len++] = arg_str[i++];
+
+      arg_cur[arg_len] = '\0';
+      arg_list[count++] = arg_cur;
     } 
-    arg_cur[arg_len] = '\0';
-    arg_list[count++] = arg_cur;
   }
   *argc = count;
   return arg_list;
