@@ -2,16 +2,20 @@
 #define CORE_H_
 
 /* instruction struct
+ * addr: instruction address
  * op: instruction op
  * argv: instruction arguments
  * argc: argument count
- * is_end: flag indicates if the ins is end point
+ * lbl_name: the name of the label for a branch/jump instruction
+ * is_leader: flag indicates if the ins is a leader
  */
 typedef struct ins {
+  int addr;
   char *op;
   char **argv;
   int argc;
-  int is_end;
+  char *lbl_name;
+  int is_leader;
 } INS;
 
 /*
