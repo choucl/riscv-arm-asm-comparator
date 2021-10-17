@@ -9,9 +9,11 @@ char** arg_parse(char* arg_str, int* argc) {
   for (int i = 0; i < strlen(arg_str); ++i) {
     int arg_len = 0;
     char* arg_cur = malloc(sizeof(char) * 20);
+
     while (arg_str[i] == ' ' || arg_str[i] == '\t') ++i; // consume white spaces
-    if (arg_str[i] == '<' || arg_str[i] == '/') break;
-    if (arg_str[i] == '[') {
+    if (arg_str[i] == '<' || arg_str[i] == '/') break; // end condition
+
+    if (arg_str[i] == '[') { // argument set condition
       while (arg_str[i] && arg_str[i] != ']') arg_cur[arg_len++] = arg_str[i++];
       arg_cur[arg_len++] = ']';
       i++;
@@ -21,7 +23,7 @@ char** arg_parse(char* arg_str, int* argc) {
       }
       arg_cur[arg_len] = '\0';
       arg_list[count++] = arg_cur;
-    } else if (arg_str[i] != '\n') {
+    } else if (arg_str[i] != '\n') { // normal argumet condition
       while (arg_str[i] && (arg_str[i] != ',' && arg_str[i] != '\n' 
             && arg_str[i] != ' ' && arg_str[i] != '<' && arg_str[i] != '/'))
         arg_cur[arg_len++] = arg_str[i++];
@@ -44,53 +46,51 @@ INS* aarch_parse(char* filename, int* ret_sz) {
 
   char* line = malloc(sizeof(char) * 128);
   int ins_count = -1;
-  int retlen = 100;
-  INS* retins = malloc(sizeof(INS) * retlen);
+  int ret_len = 16;
+  INS* ret_ins = malloc(sizeof(INS) * ret_len);
 
   while (fgets(line, 128, f) != NULL) {
     if (ins_count == -1) {
       ins_count++;
       continue; // label name 
     }
-    INS curins;
+    INS cur_ins;
     int arg_start = 0;
-    curins.op = malloc(sizeof(char) * 9);
+    cur_ins.op = malloc(sizeof(char) * 9);
 
-    if (!sscanf(line, "%x: %*s %s%n", &curins.addr, curins.op, &arg_start))
+    if (!sscanf(line, "%x: %*s %s%n", &cur_ins.addr, cur_ins.op, &arg_start))
       continue;
     
     char* arg_str = malloc(sizeof(char) * (strlen(line) - arg_start + 1));
     strncpy(arg_str, &line[arg_start], strlen(line) - arg_start + 1);
-    curins.argv = arg_parse(arg_str, &(curins.argc));
+    cur_ins.argv = arg_parse(arg_str, &(cur_ins.argc));
 
     // find lbl_name
-    curins.lbl_name = NULL;
+    cur_ins.lbl_name = NULL;
     for (int i = 0; i < strlen(line); ++i) {
       if (line[i] == '<') { // find
-        curins.lbl_name = malloc(sizeof(char) * (strlen(line) - i + 1));
+        cur_ins.lbl_name = malloc(sizeof(char) * (strlen(line) - i + 1));
         int lbl_start = i++;
-        while (line[i] != '>') {
-          (curins.lbl_name)[i - lbl_start - 1] = line[i]; 
+        while (line[i] != '>') { // copy lbl_name
+          (cur_ins.lbl_name)[i - lbl_start - 1] = line[i]; 
           i++;
         }
       }
     }
       
-    printf("%d\n", ins_count);
-    printf("%d %s\n", curins.addr, curins.op);
-    retins[ins_count++] = curins;
-    if (ins_count == retlen - 1) {
-      retlen *= 2;
-      retins = realloc(retins, sizeof(INS) * retlen);
-      if (retins == NULL) 
+    ret_ins[ins_count++] = cur_ins;
+    if (ins_count == ret_len - 1) { // dynamicall allocate
+      ret_len *= 2;
+      ret_ins = realloc(ret_ins, sizeof(INS) * ret_len);
+      if (ret_ins == NULL) 
         puts("realloc failed");
     }
   }
 
   // return unused space
-  retins = realloc(retins, sizeof(INS) * ins_count);
+  ret_ins = realloc(ret_ins, sizeof(INS) * ins_count);
 
   fclose(f);
   *ret_sz = ins_count;  
-  return retins;
+  return ret_ins;
 }
