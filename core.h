@@ -43,9 +43,10 @@ INS** riscv_parse(char* filename, int* ret_sz);
 /* find the basic block from instructions
  * params ins: instruction array of a routine
  * params ins_sz: size of the instruction array
- * output ret_sz: number of outputs 
+ * output ret_sz: number of basic blocks 
+ * output ret_bb_size: len of each basic block
  * output: basic blocks
  */
-INS*** findbb(INS** ins_arr, int ins_arr_sz, int** ret_sz);
+INS*** findbb(INS** ins_arr, int ins_arr_sz, int* ret_sz, int** ret_bb_size);
 
 #endif
