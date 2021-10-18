@@ -46,6 +46,6 @@ INS** riscv_parse(char* filename, int* ret_sz);
  * output ret_sz: number of outputs 
  * output: basic blocks
  */
-INS*** findbb(INS** ins, int ins_sz, int* ret_sz);
+INS*** findbb(INS** ins_arr, int ins_arr_sz, int** ret_sz);
 
 #endif
