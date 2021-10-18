@@ -18,7 +18,8 @@ typedef struct ins {
   int is_leader;
 } INS;
 
-/* split the dumped asm file into small routines and store to files
+/*
+ * split the dumped asm file into small routines and store to files
  * params filename: filname of the large file
  * params type: specify type of asm, 0 for RISC-V, 1 for Arm
  * output ret_sz: number of outputs 
@@ -26,26 +27,28 @@ typedef struct ins {
  */
 char** split_routine(char* filename, int type, int* ret_sz);
 
-/* parse Arm asm file
+/*
+ * parse Arm asm file
  * params filename: filname of the routine file 
  * output ret_sz: number of outputs 
  * output: instructions array of the routine
  */
 INS** aarch_parse(char* filename, int* ret_sz);
 
-/* parse RISC-V asm file
+/*
+ * parse RISC-V asm file
  * params filename: filname of the routine file 
  * output ret_sz: number of outputs 
  * output: instructions array of the routine
  */
 INS** riscv_parse(char* filename, int* ret_sz);
 
-/* find the basic block from instructions
- * params ins: instruction array of a routine
- * params ins_sz: size of the instruction array
+/*
+ * find the basic block from instructions
+ * params instructions: instruction array of a routine
  * output ret_sz: number of outputs 
  * output: basic blocks
  */
-INS*** findbb(INS** ins_arr, int ins_arr_sz, int** ret_sz);
+INS*** findbb(INS* instructions, int* ret_sz);
 
 #endif
