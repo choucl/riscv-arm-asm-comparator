@@ -5,7 +5,7 @@
  * attribute of struct ins
  */
 enum type {
-  OW,   // other instruction type
+  OW = 16,   // other instruction type
   AR,   // arithemetic instruction
   LD,   // load instruction
   ST,   // store instruction
