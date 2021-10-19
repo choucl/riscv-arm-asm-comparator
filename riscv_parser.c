@@ -248,5 +248,6 @@ INS** riscv_parse(char* filename, int *ret_sz) {
   INS **tmp = realloc(ret_ins, *ret_sz * sizeof(INS));  // shrink
   if (tmp)
     ret_ins = tmp;
+  fclose(fp);
   return ret_ins;
 }
