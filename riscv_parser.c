@@ -11,6 +11,21 @@ char buf[BUF_SZ];  // buffer to store the content of a line
 
 FILE *fp;
 
+int trans[4][26] = {
+  /* a,  b,  c,  d,  e,  f,  g,  h,  i,  j,  k,  l,  m,  n,  o,  p,  q,  r,  s,
+     t,  u,  v,  w,  x,  y,  z */
+  { AR, BR, BR, AR, BR, AR, NA, NA, NA, BR, NA,  2, AR, AR, AR, NA, NA,  1,  3,
+    BR, NA, NA, NA, AR, NA, NA },
+  { NA, NA, NA, NA,  1, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA,
+    BR, NA, NA, NA, NA, NA, NA },
+  { NA, LD, NA, LD, NA, NA, NA, LD, AR, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+    NA, AR, NA, LD, NA, NA, NA },
+  { NA, ST, NA, ST, AR, NA, AR, ST, NA, NA, NA, AR, NA, AR, NA, NA, NA, AR, NA,
+    NA, AR, NA, ST, NA, NA, NA }
+};
+
+int findtype(char *op);
+
 void next();
 int title();
 int ins(INS *i);
@@ -28,6 +43,17 @@ int lbl_name(char **name);
 int hex(int *val);
 int astring(char **str);
 int match(char c);
+
+int findtype(char *op) {
+  int type = 0;
+
+  while (*op && type < NA) {
+    type = trans[type][*op - 'a'];
+    ++op;
+  }
+
+  return type;
+}
 
 void next() {
   while (*p == ' ' || *p == '\t')
@@ -58,6 +84,7 @@ int ins(INS *i) {
       match('\n')) {
     i->addr = addr;
     i->op = op;
+    i->type = findtype(op);
     char **tmp = realloc(i->argv, i->argc * sizeof(char *));  // shrink
     if (tmp)
       i->argv = tmp;
