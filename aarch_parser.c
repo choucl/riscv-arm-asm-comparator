@@ -34,7 +34,7 @@ char** arg_parse(char* arg_str, int* argc) {
   int count = 0;
   for (int i = 0; i < strlen(arg_str); ++i) {
     int arg_len = 0;
-    char* arg_cur = calloc(20, sizeof(char));
+    char* arg_cur = calloc(30, sizeof(char));
 
     while (arg_str[i] == ' ' || arg_str[i] == '\t') ++i; // consume white spaces
     if (arg_str[i] == '<' || arg_str[i] == '/') break; // end condition
@@ -57,8 +57,10 @@ char** arg_parse(char* arg_str, int* argc) {
       arg_cur[arg_len] = '\0';
       arg_list[count++] = arg_cur;
     } 
+    arg_cur = realloc(arg_cur, sizeof(char) * (arg_len + 1));
   }
   *argc = count;
+  arg_list = realloc(arg_list, sizeof(char*) * count);
   return arg_list;
 }
 
