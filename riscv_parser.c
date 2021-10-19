@@ -84,7 +84,7 @@ int ins(INS *i) {
       match('\n')) {
     i->addr = addr;
     i->op = op;
-    i->type = findtype(op);
+    i->type = riscv_findtype(op);
     char **tmp = realloc(i->argv, i->argc * sizeof(char *));  // shrink
     if (tmp)
       i->argv = tmp;
@@ -238,5 +238,6 @@ INS** riscv_parse(char* filename, int *ret_sz) {
   INS **tmp = realloc(ret_ins, *ret_sz * sizeof(INS));  // shrink
   if (tmp)
     ret_ins = tmp;
+  fclose(fp);
   return ret_ins;
 }
