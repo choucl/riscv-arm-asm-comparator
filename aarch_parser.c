@@ -3,45 +3,21 @@
 #include <stdlib.h>
 #include <string.h>
 #define  TB_SIZE 13
-int op_trans_tb[TB_SIZE][26];
-
-void trans_tb_init() {
-  for (int i = 0; i < TB_SIZE; ++i)
-    for (int j = 0; j < 26; ++j)
-      op_trans_tb[i][j] = NA;
-  for (int i = 0; i < 26; ++i) op_trans_tb[10][i] = BR;
-  op_trans_tb[0][0] = 3;   // A
-  op_trans_tb[0][1] = 10;  // B
-  op_trans_tb[0][2] = 7;   // C
-  op_trans_tb[0][4] = 11;  // E
-  op_trans_tb[0][11] = 2;  // L
-  op_trans_tb[0][12] = 5;  // M
-  op_trans_tb[0][13] = 9;  // N
-  op_trans_tb[0][14] = 6;  // O
-  op_trans_tb[0][17] = 8;  // R
-  op_trans_tb[0][18] = 1;  // S
-  op_trans_tb[0][19] = AR; // T
-  op_trans_tb[1][19] = ST; // ST
-  op_trans_tb[1][20] = AR; // SU
-  op_trans_tb[2][3] = LD;  // LD
-  op_trans_tb[2][18] = AR; // LS
-  op_trans_tb[3][3] = 4;   // AD
-  op_trans_tb[3][13] = AR; // AN
-  op_trans_tb[4][3] = AR;  // ADD
-  op_trans_tb[5][14] = op_trans_tb[5][20] = op_trans_tb[5][21] = AR; // MO, MU, MV
-  op_trans_tb[5][17] = LD; // MR
-  op_trans_tb[5][18] = ST; // MS
-  op_trans_tb[6][17] = AR; // OR
-  op_trans_tb[7][1] = BR;  // CB
-  op_trans_tb[7][2] = 7;   // CC
-  op_trans_tb[7][12] = op_trans_tb[7][18] = op_trans_tb[7][11] = AR; // CM, CS, CL
-  op_trans_tb[8][4] = 12;  // RE
-  op_trans_tb[9][4] = AR;  // NE
-  op_trans_tb[10][8] = AR; // BI
-  op_trans_tb[11][14] = AR; // EO 
-  op_trans_tb[12][19] = BR;  // RET
-  op_trans_tb[12][21] = AR;  // REV
-}
+int op_trans_tb[TB_SIZE][26] = {
+{ 3, 10,  7, NA, 11, NA, NA, NA, NA, NA, NA,  2,  5,  9,  6, NA, NA,  8,  1, AR, NA, NA, NA, NA, NA, NA},
+{NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ST, AR, NA, NA, NA, NA, NA},
+{NA, NA, NA, LD, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA},
+{NA, NA, NA,  4, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA},
+{NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA},
+{NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, LD, ST, NA, AR, AR, NA, NA, NA, NA},
+{NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA},
+{NA, BR,  7, NA, NA, NA, NA, NA, NA, NA, NA, AR, AR, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA},
+{NA, NA, NA, NA, 12, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA},
+{NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA},
+{BR, BR, BR, BR, BR, BR, BR, BR, AR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR},
+{NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA},
+{NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, BR, NA, AR, NA, NA, NA, NA},
+};
 
 int findtype(char* op) {
   int state = 0;
@@ -99,7 +75,6 @@ INS** aarch_parse(char* filename, int* ret_sz) {
   int ret_len = 16;
   INS** ret_ins = malloc(sizeof(INS*) * ret_len);
 
-  trans_tb_init();
 
   while (fgets(line, 128, f) != NULL) {
     if (ins_count == -1) {
