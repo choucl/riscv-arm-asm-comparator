@@ -1,6 +1,17 @@
 #ifndef CORE_H_
 #define CORE_H_
 
+/* instruction type enumerate
+ * attribute of struct ins
+ */
+enum type {
+  OW,   // other instruction type
+  AR,   // arithemetic instruction
+  LD,   // load instruction
+  ST,   // store instruction
+  BR    // branch instruction
+};
+
 /* instruction struct
  * addr: instruction address
  * op: instruction op
@@ -16,6 +27,7 @@ typedef struct ins {
   int argc;
   char *lbl_name;
   int is_leader;
+  int type;
 } INS;
 
 /* split the dumped asm file into small routines and store to files
@@ -48,5 +60,12 @@ INS** riscv_parse(char* filename, int* ret_sz);
  * output: basic blocks
  */
 INS*** findbb(INS** ins_arr, int ins_arr_sz, int* ret_sz, int** ret_bb_sz);
+
+/* count the number of ins according to type
+ * params ins_arr: array of instructions
+ * params type: type of instruction to count
+ * output: number of corresponding instructions
+ */
+int count(INS** ins_arr, int type);
 
 #endif
