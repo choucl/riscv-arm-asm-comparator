@@ -24,7 +24,7 @@ int trans[4][26] = {
     NA, AR, NA, ST, NA, NA, NA }
 };
 
-int findtype(char *op);
+int riscv_findtype(char *op);
 
 void next();
 int title();
@@ -44,7 +44,7 @@ int hex(int *val);
 int astring(char **str);
 int match(char c);
 
-int findtype(char *op) {
+int riscv_findtype(char *op) {
   int type = 0;
 
   while (*op && type < NA) {
