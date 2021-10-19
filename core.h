@@ -5,11 +5,11 @@
  * attribute of struct ins
  */
 enum type {
-  OW = 16,   // other instruction type
-  AR,   // arithemetic instruction
-  LD,   // load instruction
-  ST,   // store instruction
-  BR    // branch instruction
+  NA = 16, // other instruction types
+  AR,      // arithemetic instruction
+  LD,      // load instruction
+  ST,      // store instruction
+  BR       // branch instruction
 };
 
 /* instruction struct
