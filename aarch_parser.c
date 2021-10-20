@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define  TB_SIZE 13
-int op_trans_tb[TB_SIZE][26] = {
+static int op_trans_tb[TB_SIZE][26] = {
 { 3, 10,  7, NA, 11, NA, NA, NA, NA, NA, NA,  2,  5,  9,  6, NA, NA,  8,  1, AR, NA, NA, NA, NA, NA, NA},
 {NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ST, AR, NA, NA, NA, NA, NA},
 {NA, NA, NA, LD, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA},
@@ -20,7 +20,7 @@ int op_trans_tb[TB_SIZE][26] = {
 };
 
 // find type of instruction
-int findtype(char* op) {
+static int findtype(char* op) {
   int state = 0;
   while (*op != '\0') {
     state = op_trans_tb[state][*(op)++ - 'a'];
@@ -31,7 +31,7 @@ int findtype(char* op) {
 }
 
 // parse argument string into argument arr
-char** arg_parse(char* arg_str, int* argc) {
+static char** arg_parse(char* arg_str, int* argc) {
   char** arg_list = malloc(sizeof(char*) * 6);
   int count = 0;
   for (int i = 0; i < strlen(arg_str); ++i) {
