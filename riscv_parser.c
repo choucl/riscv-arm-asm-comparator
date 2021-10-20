@@ -5,13 +5,13 @@
 #define BUF_SZ 128
 #define MAX_ARGC 8
 
-char *p;           // current position in the file
-char *tk;          // point to current token
-char buf[BUF_SZ];  // buffer to store the content of a line
+static char *p;           // current position in the file
+static char *tk;          // point to current token
+static char buf[BUF_SZ];  // buffer to store the content of a line
 
-FILE *fp;
+static FILE *fp;
 
-int trans[4][26] = {
+static int trans[4][26] = {
   /* a,  b,  c,  d,  e,  f,  g,  h,  i,  j,  k,  l,  m,  n,  o,  p,  q,  r,  s,
      t,  u,  v,  w,  x,  y,  z */
   { AR, BR, BR, AR, BR, AR, NA, NA, NA, BR, NA,  2, AR, AR, AR, NA, NA,  1,  3,
@@ -24,27 +24,27 @@ int trans[4][26] = {
     NA, AR, NA, ST, NA, NA, NA }
 };
 
-int findtype(char *op);
+static int findtype(char *op);
 
-void next();
-int title();
-int ins(INS *i);
-int arg_list(INS *i);
-int arg(INS *i);
-int more_args(INS *i);
-int lbl(char **name);
-int lbl_name(char **name);
+static void next();
+static int title();
+static int ins(INS *i);
+static int arg_list(INS *i);
+static int arg(INS *i);
+static int more_args(INS *i);
+static int lbl(char **name);
+static int lbl_name(char **name);
 
 /* Function that matches terminals. Return 1 when match successfully, 0
  * otherwise. The related value is passed out via parameter of reference. When
  * matching successfully, it call next() to get to the next token for further 
  * parsing.
  */
-int hex(int *val);
-int astring(char **str);
-int match(char c);
+static int hex(int *val);
+static int astring(char **str);
+static int match(char c);
 
-int findtype(char *op) {
+static int findtype(char *op) {
   int type = 0;
 
   while (*op && type < NA) {
@@ -55,7 +55,7 @@ int findtype(char *op) {
   return type;
 }
 
-void next() {
+static void next() {
   while (*p == ' ' || *p == '\t')
     ++p;
 
@@ -68,23 +68,28 @@ void next() {
   tk = p;
 }
 
-int title() {
+static int title() {
   int val;
-  char *name;
+  char *name = NULL;
 
-  return hex(&val) && lbl_name(&name) && match(':') && match('\n') &&
-         printf("Parsing routine: %s @0x%x\n", name, val);
+  if (hex(&val) && lbl_name(&name) && match(':') && match('\n')) {
+     printf("Parsing routine: %s @0x%x\n", name, val);
+     free(name);
+     return 1;
+  }
+  return 0;
 }
 
-int ins(INS *i) {
-  int addr, mc;
-  char *op;
+static int ins(INS *i) {
+  int addr;
+  char *op = NULL;
 
-  if (hex(&addr) && match(':') && hex(&mc) && astring(&op) && arg_list(i) && 
+  if (hex(&addr) && match(':') && hex(NULL) && astring(&op) && arg_list(i) && 
       match('\n')) {
     i->addr = addr;
     i->op = op;
     i->type = findtype(op);
+    i->is_leader = 0;
     char **tmp = realloc(i->argv, i->argc * sizeof(char *));  // shrink
     if (tmp)
       i->argv = tmp;
@@ -93,7 +98,7 @@ int ins(INS *i) {
   return 0;
 }
 
-int arg_list(INS *i) {
+static int arg_list(INS *i) {
   i->argc = 0;
   i->lbl_name = NULL;
 
@@ -106,82 +111,85 @@ int arg_list(INS *i) {
   }
 }
 
-int arg(INS *i) {
-  char *arg_str, *name;
+static int arg(INS *i) {
+  char *arg_str = NULL, *name = NULL;
 
   if (astring(&arg_str) && lbl(&name)) {
     if (i->argc < MAX_ARGC)
       i->argv[(i->argc)++] = arg_str;
-    if (name)
-      i->lbl_name = name;
+    i->lbl_name = name;
+    return 1;
+  }
+  free(i->argv);
+  return 0;
+}
+
+static int more_args(INS *i) {
+  if (*tk == ',') {
+    return match(',') && arg(i) && more_args(i);
+  } else if (*tk == '\n') {
+    return 1;
+  }
+  free(i->argv);
+  return 0;
+}
+
+static int lbl(char **name) {
+  if (*tk == '<') {
+    return lbl_name(name);
+  } else if (*tk == '\n' || *tk == ',') {
     return 1;
   }
   return 0;
 }
 
-int more_args(INS *i) {
-  if (*tk == ',') {
-    return match(',') && arg(i) && more_args(i);
-  } else if (*tk == '\n') {
-    return 1;
-  } else {
-    puts("Parse error");
-    return 0;
-  }
-}
-
-int lbl(char **name) {
-  if (*tk == '<') {
-    return lbl_name(name);
-  } else if (*tk == '\n' || *tk == ',') {
-    *name = NULL;
-    return 1;
-  } else {
-    puts("Parse error");
-    return 0;
-  }
-}
-
-int hex(int *val) {
-  *val = 0;
+static int hex(int *val) {
+  int tmp = 0;
 
   while (*p) {
     if (*p >= '0' && *p <= '9')
-      *val = *val * 16 + (*p - '0');
+      tmp = tmp * 16 + (*p - '0');
     else if (*p >= 'a' && *p <= 'f')
-      *val = *val * 16 + (*p - 'a' + 10);  // 0xa is 10 in dec
+      tmp = tmp * 16 + (*p - 'a' + 10);  // 0xa is 10 in dec
     else
       break;
     ++p;
   }
 
-  if (p == tk)
+  if (p == tk)  // Did not parse anything
     return 0;
+
+  if (val)
+    *val = tmp;
   next();
   return 1;
 }
 
-int lbl_name(char **name) {
+static int lbl_name(char **name) {
   return match('<') && astring(name) && match('>');
 }
 
-int astring(char **str) {
+static int astring(char **str) {
   // Find the string w/o delimiter
   while (*p > ' ' && *p != '<' && *p != '>' && *p != ',' && *p != ':')
     ++p;
 
   int len = p - tk;
   if (!len) {
-    *str = NULL;
+    if (str)
+      *str = NULL;
     return 0;
   }
-  *str = calloc(len + 1, sizeof(char));
-  strncpy(*str, tk, len);
+
+  if (str) {
+    *str = calloc(len + 1, sizeof(char));
+    strncpy(*str, tk, len);
+  }
   next();
   return 1;
 }
 
-int match(char c) {
+static int match(char c) {
   if (*tk != c)
     return 0;
   ++p;
@@ -213,7 +221,9 @@ INS** riscv_parse(char* filename, int *ret_sz) {
 
     INS *i = malloc(sizeof(INS));
 
-    // Start parsing an instruction from the non-terminal Ins
+    /* Start parsing an instruction from the non-terminal Ins. If the line does
+     * not derive a Ins, then skip it.
+     */
     if (!ins(i)) {
       free(i);
       continue;
