@@ -111,6 +111,7 @@ INS** aarch_parse(char* filename, int* ret_sz) {
       }
     }
       
+    cur_ins->is_leader = 0;
     ret_ins[ins_count++] = cur_ins;
     if (ins_count == ret_len - 1) { // dynamicall allocate
       ret_len *= 2;
