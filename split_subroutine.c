@@ -9,7 +9,7 @@ char** split_routine(char* filename, int type, int* ret_sz) {
 
   FILE* f = fopen(filename, "r");
   if (f == NULL) {
-    puts("file cannot open. exit program...");
+    printf("file %s cannot open. exit program...\n", filename);
     exit(-1);
   }
 
@@ -24,7 +24,7 @@ char** split_routine(char* filename, int type, int* ret_sz) {
     if (!subroutine_start) {
       if (sscanf(line, "%x%n <%[^>^:]>:\n", &addr, &addrlen, name) == 2
           && addrlen == 16) { // find first subroutine
-        if (name[0] == '_') continue;
+        if (name[0] == '_' || name[0] == '.') continue;
         subroutine_start = 1;
         strncat(name, (type)? ".aarch.o" : ".riscv.o", 9);
         subnames[(*ret_sz)] = calloc(strlen(name) + 1, sizeof(char));
@@ -40,11 +40,10 @@ char** split_routine(char* filename, int type, int* ret_sz) {
             && addrlen == 16) { // next subroutine
           fclose(fo);
           fo = NULL;
-          if (name[0] == '_') {
+          if (name[0] == '_' || name[0] == '.') {
             subroutine_start = 0;
             continue;
           }
-          subroutine_start = 1;
           strncat(name, (type)? ".aarch.o" : ".riscv.o", 9);
           subnames[(*ret_sz)] = malloc(sizeof(char) * strlen(name) + 1);
           strncpy(subnames[(*ret_sz)], name, strlen(name) + 1);

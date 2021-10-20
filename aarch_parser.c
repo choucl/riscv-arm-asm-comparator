@@ -59,10 +59,12 @@ static char** arg_parse(char* arg_str, int* argc) {
       arg_cur[arg_len] = '\0';
       arg_list[count++] = arg_cur;
     } 
-    arg_cur = realloc(arg_cur, sizeof(char) * (arg_len + 1));
+    char* tmp = realloc(arg_cur, sizeof(char) * (arg_len + 1));
+    if (tmp) arg_cur = tmp;
   }
   *argc = count;
-  arg_list = realloc(arg_list, sizeof(char*) * count);
+  char** tmp = realloc(arg_list, sizeof(char*) * count);
+  if (tmp) arg_list = tmp;
   return arg_list;
 }
 

@@ -88342,8 +88342,6 @@ Disassembly of section __libc_freeres_fn:
   455cdc:	f94013f5 	ldr	x21, [sp, #32]
   455ce0:	17ffffe6 	b	455c78 <free_mem+0xb0>
 
-Disassembly of section .fini:
-
 0000000000455ce4 <_fini>:
   455ce4:	a9bf7bfd 	stp	x29, x30, [sp, #-16]!
   455ce8:	910003fd 	mov	x29, sp

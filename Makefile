@@ -1,5 +1,5 @@
 CXX := gcc
-FLAGS := -Wall -g
+FLAGS := -Wextra -Wall -g
 target := comparator.out
 objs := $(patsubst %.c,%.o,$(wildcard *.c))
 AARCH := dumpfiles/aarch64_coremark.dump
@@ -14,6 +14,6 @@ main.o: %.o: %.c core.h
 $(target): $(objs)
 	$(CXX) $(FLAGS) -o $@ $^
 run:
-	./$(target) $(AARCH) $(RICSV)
+	./$(target) $(RICSV) $(AARCH)
 clean:
 	rm -f *.o $(target)
