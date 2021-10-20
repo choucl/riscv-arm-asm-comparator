@@ -59,7 +59,10 @@ char** split_routine(char* filename, int type, int* ret_sz) {
       }
     }
   }
+  free(line);
+  free(name);
+  subnames = realloc(subnames, sizeof(char*) * *ret_sz);
   if (fo) fclose(fo);
-  fclose(f);
+  if(f) fclose(f);
   return subnames;
 }

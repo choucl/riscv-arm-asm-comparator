@@ -19,6 +19,7 @@ int op_trans_tb[TB_SIZE][26] = {
 {NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, BR, NA, AR, NA, NA, NA, NA},
 };
 
+// find type of instruction
 int findtype(char* op) {
   int state = 0;
   while (*op != '\0') {
@@ -29,6 +30,7 @@ int findtype(char* op) {
   return NA;
 }
 
+// parse argument string into argument arr
 char** arg_parse(char* arg_str, int* argc) {
   char** arg_list = malloc(sizeof(char*) * 6);
   int count = 0;
@@ -77,14 +79,14 @@ INS** aarch_parse(char* filename, int* ret_sz) {
   int ret_len = 16;
   INS** ret_ins = malloc(sizeof(INS*) * ret_len);
 
-
   while (fgets(line, 128, f) != NULL) {
     if (ins_count == -1) {
       ins_count++;
       continue; // label name 
     }
-    INS* cur_ins = malloc(sizeof(INS));
+
     int arg_start = 0;
+    INS* cur_ins = malloc(sizeof(INS));
     cur_ins->op = malloc(sizeof(char) * 9);
 
     if (!sscanf(line, "%x: %*s %s%n", &cur_ins->addr, cur_ins->op, &arg_start))
@@ -94,6 +96,7 @@ INS** aarch_parse(char* filename, int* ret_sz) {
     char* arg_str = calloc((strlen(line) - arg_start + 1), sizeof(char));
     strncpy(arg_str, &line[arg_start], strlen(line) - arg_start + 1);
     cur_ins->argv = arg_parse(arg_str, &(cur_ins->argc));
+    free(arg_str);
 
     // find lbl_name
     cur_ins->lbl_name = NULL;
