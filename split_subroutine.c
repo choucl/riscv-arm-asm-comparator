@@ -26,9 +26,13 @@ char** split_routine(char* filename, int type, int* ret_sz) {
           && addrlen == 16) { // find first subroutine
         if (name[0] == '_' || name[0] == '.') continue;
         subroutine_start = 1;
-        strncat(name, (type)? ".aarch.o" : ".riscv.o", 9);
+
+        // set up file name
+        char* tmp = strdup(name);
+        sprintf(name, "subroutines/%s.%s.o", tmp, (type)? "aarch" : "riscv");
+        printf("%s\n",name);
         subnames[(*ret_sz)] = calloc(strlen(name) + 1, sizeof(char));
-        strncpy(subnames[(*ret_sz)], name, strlen(name) + 1);
+        strncpy(subnames[(*ret_sz)], name, strlen(name));
         fo = fopen(name, "w+");
         fprintf(fo, "%s", line);
         (*ret_sz)++;
@@ -44,7 +48,10 @@ char** split_routine(char* filename, int type, int* ret_sz) {
             subroutine_start = 0;
             continue;
           }
-          strncat(name, (type)? ".aarch.o" : ".riscv.o", 9);
+
+          // set up file name
+          char* tmp = strdup(name);
+          sprintf(name, "subroutines/%s.%s.o", tmp, (type)? "aarch" : "riscv");
           subnames[(*ret_sz)] = malloc(sizeof(char) * strlen(name) + 1);
           strncpy(subnames[(*ret_sz)], name, strlen(name) + 1);
           fo = fopen(name, "w+");
