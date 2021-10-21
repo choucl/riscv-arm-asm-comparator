@@ -11,6 +11,9 @@ static char buf[BUF_SZ];  // buffer to store the content of a line
 
 static FILE *fp;
 
+/* Simple dfa to classify the type of a given op string. The transition table
+ * contains 4 states.
+ */
 static int trans[4][26] = {
   /* a,  b,  c,  d,  e,  f,  g,  h,  i,  j,  k,  l,  m,  n,  o,  p,  q,  r,  s,
      t,  u,  v,  w,  x,  y,  z */
@@ -156,8 +159,7 @@ static int hex(int *val) {
     ++p;
   }
 
-  if (p == tk)  // Did not parse anything
-    return 0;
+  if (p == tk) return 0;  // Did not parse anything
 
   if (val)
     *val = tmp;
@@ -175,6 +177,7 @@ static int astring(char **str) {
     ++p;
 
   int len = p - tk;
+
   if (!len) {
     if (str)
       *str = NULL;
@@ -190,8 +193,8 @@ static int astring(char **str) {
 }
 
 static int match(char c) {
-  if (*tk != c)
-    return 0;
+  if (*tk != c) return 0;
+
   ++p;
   next();
   return 1;
@@ -209,12 +212,12 @@ INS** riscv_parse(char* filename, int *ret_sz) {
   p = buf;
   next();
 
-  if(!title()) {
+  if (!title()) {
     printf("File: %s contains no title\n", filename);
   }
 
   int max_ret_sz = 32, ins_idx = 0;
-  INS **ret_ins = malloc(max_ret_sz * sizeof(INS *));
+  INS **ins_arr = malloc(max_ret_sz * sizeof(INS *));
   while (fgets(buf, BUF_SZ, fp)) {
     p = buf;
     next();
@@ -229,25 +232,25 @@ INS** riscv_parse(char* filename, int *ret_sz) {
       continue;
     }
 
-    /* The ret_ins is implemented using dynamic tables. When it if full, we
+    /* The ins_arr is implemented using dynamic tables. When it is full, we
      * reallocate it with doubled size.
      */
     if (ins_idx == max_ret_sz) {
       max_ret_sz *= 2;
-      INS **tmp = realloc(ret_ins, max_ret_sz * sizeof(INS *));
+      INS **tmp = realloc(ins_arr, max_ret_sz * sizeof(INS *));
       if (!tmp) {
         printf("Failed reallocating memory for size: %d\n", max_ret_sz);
         break;  // If failed, just return what we have got so far
       }
-      ret_ins = tmp;
+      ins_arr = tmp;
     }
-    ret_ins[ins_idx++] = i;
+    ins_arr[ins_idx++] = i;
   }
 
   *ret_sz = ins_idx;
-  INS **tmp = realloc(ret_ins, *ret_sz * sizeof(INS));  // shrink
+  INS **tmp = realloc(ins_arr, *ret_sz * sizeof(INS));  // shrink
   if (tmp)
-    ret_ins = tmp;
+    ins_arr = tmp;
   fclose(fp);
-  return ret_ins;
+  return ins_arr;
 }
