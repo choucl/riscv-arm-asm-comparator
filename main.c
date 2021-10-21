@@ -35,9 +35,9 @@ static int writebb(INS*** bb, int bb_count, int* bb_len, int type, char* name) {
   char* fname = calloc(sizeof(char), strlen(name) + 5);
   strncpy(tmp, &name[12], strlen(name) - 20);
   if (type)
-    sprintf(fname, "bbroutines/a/%s.bb.aarch", tmp);
+    sprintf(fname, "bbroutines/a/%s.aarch.bb", tmp);
   else
-    sprintf(fname, "bbroutines/r/%s.bb.riscv", tmp);
+    sprintf(fname, "bbroutines/r/%s.riscv.bb", tmp);
   FILE* f = fopen(fname, "w+");
   if (f == NULL) {
     free(fname);
