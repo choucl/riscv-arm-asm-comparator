@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
       printf("parsing %s\n", subnames[i][j]);
       INS** ins_arr = (i == 0)? riscv_parse(subnames[i][j], &ins_arr_sz) :
           aarch_parse(subnames[i][j], &ins_arr_sz);
-      // INS*** bb = findbb(ins_arr, ins_arr_sz, &bb_count, &bb_sz);
+      INS*** bb = findbb(ins_arr, ins_arr_sz, &bb_count, &bb_sz);
     }
   }
   return 0;

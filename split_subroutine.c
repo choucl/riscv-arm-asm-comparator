@@ -32,10 +32,10 @@ char** split_routine(char* filename, int type, int* ret_sz) {
         sprintf(name, "subroutines/%s.%s.o", tmp, (type)? "aarch" : "riscv");
         printf("%s\n",name);
         subnames[(*ret_sz)] = calloc(strlen(name) + 1, sizeof(char));
-        strncpy(subnames[(*ret_sz)], name, strlen(name));
+        strncpy(subnames[(*ret_sz)++], name, strlen(name) + 1);
         fo = fopen(name, "w+");
         fprintf(fo, "%s", line);
-        (*ret_sz)++;
+        free(tmp);
       }
     } else {
       if (line[0] == '\n') {
@@ -52,11 +52,11 @@ char** split_routine(char* filename, int type, int* ret_sz) {
           // set up file name
           char* tmp = strdup(name);
           sprintf(name, "subroutines/%s.%s.o", tmp, (type)? "aarch" : "riscv");
-          subnames[(*ret_sz)] = malloc(sizeof(char) * strlen(name) + 1);
-          strncpy(subnames[(*ret_sz)], name, strlen(name) + 1);
+          subnames[(*ret_sz)] = calloc(strlen(name) + 1, sizeof(char));
+          strncpy(subnames[(*ret_sz)++], name, strlen(name) + 1);
           fo = fopen(name, "w+");
           fprintf(fo, "%s", line);
-          (*ret_sz)++;
+          free(tmp);
         } else { // source code, continue
            fprintf(fo, "\n%s", line);
         }
@@ -67,8 +67,9 @@ char** split_routine(char* filename, int type, int* ret_sz) {
   }
   free(line);
   free(name);
-  subnames = realloc(subnames, sizeof(char*) * *ret_sz);
+  char** tmp = realloc(subnames, sizeof(char*) * *ret_sz);
+  if (tmp) subnames = tmp;
   if (fo) fclose(fo);
-  if(f) fclose(f);
+  if (f) fclose(f);
   return subnames;
 }
