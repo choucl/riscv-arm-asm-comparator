@@ -5,6 +5,7 @@ objs := $(patsubst %.c,%.o,$(wildcard *.c))
 AARCH := dumpfiles/aarch64_coremark.dump
 RICSV := dumpfiles/riscv64_coremark.dump
 subdir := subroutines
+bbdir := bbroutines/a bbroutines/r bbroutines
 .PHONY: all clean run
 
 all: $(target)
@@ -16,7 +17,9 @@ $(target): $(objs)
 	$(CXX) $(FLAGS) -o $@ $^
 run:
 	mkdir $(subdir) -p
+	mkdir $(bbdir) -p
 	./$(target) $(RICSV) $(AARCH)
 clean:
 	rm -rf $(subdir)
+	rm -rf $(bbdir)
 	rm -f *.o $(target)
