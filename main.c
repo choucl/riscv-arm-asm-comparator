@@ -3,6 +3,25 @@
 #include <string.h>
 #include "core.h"
 
+/* free the instruction
+ * params ins_arr
+ * params ins_sz
+ */
+static void freeins(INS** ins_arr, int ins_sz) {
+  for (int i = 0; i < ins_sz; ++i) {
+    if (ins_arr[i]) {
+      // free strings
+      free(ins_arr[i]->op);
+      free(ins_arr[i]->lbl_name);
+      for (int j = 0; j < ins_arr[i]->argc; ++j) {
+        free(ins_arr[i]->argv[j]);
+      }
+    }
+    free(ins_arr[i]);
+  }
+  free(ins_arr);
+}
+
 /* write bb information included file
  * input bb: list of bb in a subroutine
  * input bb_count: size of all bb
@@ -20,7 +39,11 @@ static int writebb(INS*** bb, int bb_count, int* bb_len, int type, char* name) {
   else
     sprintf(fname, "bbroutines/r/%s.bb.riscv", tmp);
   FILE* f = fopen(fname, "w+");
-  if (f == NULL) return 0;
+  if (f == NULL) {
+    free(fname);
+    free(tmp);
+    return 0;
+  }
   printf("[writing] %s\n", fname);
 
   // write instruction and bb data into file
@@ -41,8 +64,9 @@ static int writebb(INS*** bb, int bb_count, int* bb_len, int type, char* name) {
     }
     fprintf(f, "\n");
   } 
+
+  free(fname);
   free(tmp);
-  free(name);
   fflush(f);
   fclose(f);
   return 1;
@@ -64,12 +88,14 @@ int main(int argc, char** argv) {
     for (int j = 0; j < fcount; ++j) { 
       int ins_arr_sz, bb_count, *bb_sz;
       printf("[parsing] %s\n", subnames[i][j]);
-      INS** ins_arr = (i == 0)? riscv_parse(subnames[i][j], &ins_arr_sz) :
-          aarch_parse(subnames[i][j], &ins_arr_sz);
+      INS** ins_arr = (i == 0)? riscv_parse(subnames[i][j], &ins_arr_sz):
+                                aarch_parse(subnames[i][j], &ins_arr_sz);
       INS*** bb = findbb(ins_arr, ins_arr_sz, &bb_count, &bb_sz);
       if (!writebb(bb, bb_count, bb_sz, i, subnames[i][j])) {
         printf("\nwrite bb file of %s failed. skiped...\n", subnames[i][j]);
       }
+
+      freeins(ins_arr, ins_arr_sz); // free all instructions
     }
   }
   return 0;
