@@ -15,7 +15,7 @@ main.o: %.o: %.c core.h
 	$(CXX) $(FLAGS) -c $<
 $(target): $(objs)
 	$(CXX) $(FLAGS) -o $@ $^
-run:
+run: all
 	mkdir $(subdir) -p
 	mkdir $(bbdir) -p
 	./$(target) $(RICSV) $(AARCH)
