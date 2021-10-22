@@ -51,28 +51,30 @@ static int writebb(INS*** bb, int bb_count, int* bb_len,
   // write instruction and bb data into file
   int type_count[5] = {0}; // count for each type
   for (int i = 0; i < bb_count; ++i) {
-    fprintf(f, "BB <%d>, %d\n", i, bb_len[i]);
+    fprintf(f, "BB <%d>, %d ins\n", i, bb_len[i]);
     for (int j = 0; j < bb_len[i]; ++j) {
       INS *ins = bb[i][j];
       type_count[ins->type - NA]++;
-      fprintf(f, "%x: \t%s\t%.2s\t[%d args]\t%d\t", ins->addr, ins->op,
-          &"NAARLDSTBR"[2 * (ins->type - NA)], ins->argc,
-          ins->is_leader);
+      fprintf(f, "%x: \t%s\t", ins->addr, ins->op);
       for (int k = 0; k < ins->argc; ++k) {
         fprintf(f, "%s\t", ins->argv[k]);
       }
       if (ins->lbl_name) {
         fprintf(f, "<%s>\t", ins->lbl_name);
       }
-      fprintf(f, "\n");
+      fprintf(f, "(%.2s, %d args)\t\n",
+          &"NAARLDSTBR"[2 * (ins->type - NA)], ins->argc);
     }
     fprintf(f, "\n");
   } 
   
-  fprintf(f, "================== CONCLUDE ==================\n");
-  fprintf(f, "total instructions:\t%d\n", ins_arr_sz);
+  fprintf(f, "================== CONCLUSION ==================\n");
+  fprintf(f, "total instructions: %d\n", ins_arr_sz);
+  fprintf(f, "average # of ins in a bb: %.3f\n", (float)ins_arr_sz / bb_count);
   for (int i = 0; i < 5; ++i) {
-    fprintf(f, "type %.2s count:\t%d\n", &"NAARLDSTBR"[2 * i], type_count[i]);
+    fprintf(f, "type %.2s count: %d\t(%.3f%%)\n",
+        &"NAARLDSTBR"[2 * i], type_count[i],
+        (float)type_count[i] * 100 / ins_arr_sz);
   }
 
   free(fname);

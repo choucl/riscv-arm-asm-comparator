@@ -4,11 +4,12 @@
 #include <string.h>
 #define  TB_SIZE 13
 static int op_trans_tb[TB_SIZE][26] = {
-{ 3, 10,  7, NA, 11, NA, NA, NA, NA, NA, NA,  2,  5,  9,  6, NA, NA,  8,  1, AR, NA, NA, NA, NA, NA, NA},
-{NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ST, AR, NA, NA, NA, NA, NA},
+/*a,  b,  c,  d,  e,  f,  g,  h,  i,  j,  k,  l,  m,  n,  o,  p,  q,  r,  s,  t,  u,  v,  w,  x,  y,  z*/
+{ 3, 10,  7, NA, 11, AR, NA, NA, NA, NA, NA,  2,  5,  9,  6, NA, NA,  8,  1, AR, AR, NA, NA, NA, NA, NA},
+{NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ST, AR, NA, NA, AR, NA, NA},
 {NA, NA, NA, LD, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA},
 {NA, NA, NA,  4, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA},
-{NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA},
+{NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA},
 {NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, LD, ST, NA, AR, AR, NA, NA, NA, NA},
 {NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA, NA},
 {NA, BR,  7, NA, NA, NA, NA, NA, NA, NA, NA, AR, AR, NA, NA, NA, NA, NA, AR, NA, NA, NA, NA, NA, NA, NA},
