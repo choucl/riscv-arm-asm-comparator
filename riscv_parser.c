@@ -76,7 +76,6 @@ static int title() {
   char *name = NULL;
 
   if (hex(&val) && lbl_name(&name) && match(':') && match('\n')) {
-     printf("Parsing routine: %s @0x%x\n", name, val);
      free(name);
      return 1;
   }

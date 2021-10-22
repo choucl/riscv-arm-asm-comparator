@@ -30,7 +30,7 @@ char** split_routine(char* filename, int type, int* ret_sz) {
         // set up file name
         char* tmp = strdup(name);
         sprintf(name, "subroutines/%s.%s.o", tmp, (type)? "aarch" : "riscv");
-        printf("[spliting] %s\n",name);
+        printf("[Spliting] %s\n",name);
         subnames[(*ret_sz)] = calloc(strlen(name) + 1, sizeof(char));
         strncpy(subnames[(*ret_sz)++], name, strlen(name) + 1);
         fo = fopen(name, "w+");
