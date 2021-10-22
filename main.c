@@ -27,9 +27,11 @@ static void freeins(INS** ins_arr, int ins_sz) {
  * input bb_count: size of all bb
  * input bb_len: len of each bb
  * input name: name of input subroutine file
+ * input ins_arr_sz: total len of instructions in this subroutine
  * output: success or not
  */ 
-static int writebb(INS*** bb, int bb_count, int* bb_len, int type, char* name) {
+static int writebb(INS*** bb, int bb_count, int* bb_len,
+                   int type, char* name, int ins_arr_sz) {
   // setup write file
   char* tmp = calloc(sizeof(char), strlen(name));
   char* fname = calloc(sizeof(char), strlen(name) + 5);
@@ -47,10 +49,12 @@ static int writebb(INS*** bb, int bb_count, int* bb_len, int type, char* name) {
   printf("[Writing]\t%s\n", fname);
 
   // write instruction and bb data into file
+  int type_count[5] = {0}; // count for each type
   for (int i = 0; i < bb_count; ++i) {
     fprintf(f, "BB <%d>, %d\n", i, bb_len[i]);
     for (int j = 0; j < bb_len[i]; ++j) {
       INS *ins = bb[i][j];
+      type_count[ins->type - NA]++;
       fprintf(f, "%x: \t%s\t%.2s\t[%d args]\t%d\t", ins->addr, ins->op,
           &"NAARLDSTBR"[2 * (ins->type - NA)], ins->argc,
           ins->is_leader);
@@ -64,6 +68,12 @@ static int writebb(INS*** bb, int bb_count, int* bb_len, int type, char* name) {
     }
     fprintf(f, "\n");
   } 
+  
+  fprintf(f, "================== CONCLUDE ==================\n");
+  fprintf(f, "total instructions:\t%d\n", ins_arr_sz);
+  for (int i = 0; i < 5; ++i) {
+    fprintf(f, "type %.2s count:\t%d\n", &"NAARLDSTBR"[2 * i], type_count[i]);
+  }
 
   free(fname);
   free(tmp);
@@ -91,7 +101,7 @@ int main(int argc, char** argv) {
       INS** ins_arr = (i == 0)? riscv_parse(subnames[i][j], &ins_arr_sz):
                                 aarch_parse(subnames[i][j], &ins_arr_sz);
       INS*** bb = findbb(ins_arr, ins_arr_sz, &bb_count, &bb_sz);
-      if (!writebb(bb, bb_count, bb_sz, i, subnames[i][j])) {
+      if (!writebb(bb, bb_count, bb_sz, i, subnames[i][j], ins_arr_sz)) {
         printf("\nwrite bb file of %s failed. skiped...\n", subnames[i][j]);
       }
 

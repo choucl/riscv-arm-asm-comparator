@@ -64,9 +64,9 @@ INS*** findbb(INS** ins_arr, int ins_arr_sz, int* ret_sz, int** ret_bb_sz);
 /* count the number of ins according to type
  * params ins_arr: array of instructions
  * params type: type of instruction to count
- * params ins_sz: len of instrunction array
+ * params ins_arr_sz: len of instrunction array
  * output: number of corresponding instructions
  */
-int type_count(INS** ins_arr, int type, int ins_sz);
+int count_type(INS** ins_arr, int ins_arr_sz, int type);
 
 #endif

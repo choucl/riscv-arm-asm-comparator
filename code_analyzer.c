@@ -137,3 +137,11 @@ INS ***findbb(INS **ins_arr, int ins_arr_sz, int *ret_sz, int **ret_bb_sz) {
   free(ins_hash_map);
   return bb_list;
 }
+
+int count_type(INS **ins_arr, int ins_arr_sz, int type) {
+  int count = 0; 
+  for (int i = 0; i < ins_arr_sz; ++i) {
+    if (ins_arr[i]->type == type) count++; 
+  }
+  return count;
+}
