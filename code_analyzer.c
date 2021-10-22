@@ -32,7 +32,6 @@ static int hash(unsigned long long key) {
  * Check: https://en.wikipedia.org/wiki/Basic_block#Creation_algorithm
  */
 INS ***findbb(INS **ins_arr, int ins_arr_sz, int *ret_sz, int **ret_bb_sz) {
-
   if (!ins_arr_sz) return NULL;
 
   m = next_p2(ins_arr_sz) << 1;  // keep load facter < 0.5 but > 0.25
@@ -44,7 +43,6 @@ INS ***findbb(INS **ins_arr, int ins_arr_sz, int *ret_sz, int **ret_bb_sz) {
    */
   for (int i = 0; i < ins_arr_sz; ++i) {
     int h = hash(ins_arr[i]->addr);
-
     while (ins_hash_map[h] != NULL)
       h = (h == m - 1)? 0 : h + 1;  // Linear probing to find a emtpy slot
 
@@ -68,15 +66,12 @@ INS ***findbb(INS **ins_arr, int ins_arr_sz, int *ret_sz, int **ret_bb_sz) {
 
       int target_addr = strtol(cur_ins->argv[cur_ins->argc - 1], NULL, 16);
       int h = hash(target_addr);
-
       while (ins_hash_map[h]) {
         INS *target = ins_hash_map[h];
-
         if (target->addr == target_addr) {
           target->is_leader = 1;  // #2
           break;
         }
-
         h = (h == m - 1)? 0 : h + 1;  // Another linear probing
       }
     }
@@ -90,6 +85,7 @@ INS ***findbb(INS **ins_arr, int ins_arr_sz, int *ret_sz, int **ret_bb_sz) {
   int leader = 0, max_ret_sz = 16, bb_idx = 0;
   INS ***bb_list = malloc(max_ret_sz * sizeof(INS **));
   int *bb_sz = malloc(max_ret_sz * sizeof(int));
+
   while (leader < ins_arr_sz) {
     int next_leader = leader + 1;
 
@@ -105,16 +101,17 @@ INS ***findbb(INS **ins_arr, int ins_arr_sz, int *ret_sz, int **ret_bb_sz) {
     if (bb_idx == max_ret_sz) {
       max_ret_sz *= 2;
       INS ***tmp_bb_list = realloc(bb_list, max_ret_sz * sizeof(INS **));
-      int *tmp_bb_sz = realloc(bb_sz, max_ret_sz * sizeof(int));
       if (!tmp_bb_list) {
         printf("Failed reallocating memory for size: %d\n", max_ret_sz);
         break;
       }
+      bb_list = tmp_bb_list;
+
+      int *tmp_bb_sz = realloc(bb_sz, max_ret_sz * sizeof(int));
       if (!tmp_bb_sz) {
         printf("Failed reallocating memory for size: %d\n", max_ret_sz);
         break;
       }
-      bb_list = tmp_bb_list;
       bb_sz = tmp_bb_sz;
     }
 
@@ -127,13 +124,14 @@ INS ***findbb(INS **ins_arr, int ins_arr_sz, int *ret_sz, int **ret_bb_sz) {
 
   *ret_sz = bb_idx;
   INS ***tmp_bb_list = realloc(bb_list, *ret_sz * sizeof(INS **));  // shrink
-  int *tmp_bb_sz = realloc(bb_sz, *ret_sz * sizeof(int));           // shrink
   if (tmp_bb_list)
     bb_list = tmp_bb_list;
+
+  int *tmp_bb_sz = realloc(bb_sz, *ret_sz * sizeof(int));           // shrink
   if (tmp_bb_sz)
     bb_sz = tmp_bb_sz;
-  *ret_bb_sz = bb_sz;
 
+  *ret_bb_sz = bb_sz;
   free(ins_hash_map);
   return bb_list;
 }

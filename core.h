@@ -69,4 +69,4 @@ INS*** findbb(INS** ins_arr, int ins_arr_sz, int* ret_sz, int** ret_bb_sz);
  */
 int count_type(INS** ins_arr, int ins_arr_sz, int type);
 
-#endif
+#endif  // CORE_H_

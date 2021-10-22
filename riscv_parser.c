@@ -49,12 +49,10 @@ static int match(char c);
 
 static int findtype(char *op) {
   int type = 0;
-
   while (*op && type < NA) {
     type = trans[type][*op - 'a'];
     ++op;
   }
-
   return type;
 }
 
@@ -67,14 +65,13 @@ static void next() {
    */
   if (*p == '#')
     while (*p != '\n')
-      ++p;  
+      ++p;
   tk = p;
 }
 
 static int title() {
   int val;
   char *name = NULL;
-
   if (hex(&val) && lbl_name(&name) && match(':') && match('\n')) {
      free(name);
      return 1;
@@ -85,7 +82,6 @@ static int title() {
 static int ins(INS *i) {
   int addr;
   char *op = NULL;
-
   if (hex(&addr) && match(':') && hex(NULL) && astring(&op) && arg_list(i) && 
       match('\n')) {
     i->addr = addr;
@@ -115,7 +111,6 @@ static int arg_list(INS *i) {
 
 static int arg(INS *i) {
   char *arg_str = NULL, *name = NULL;
-
   if (astring(&arg_str) && lbl(&name)) {
     if (i->argc < MAX_ARGC)
       i->argv[(i->argc)++] = arg_str;
@@ -176,7 +171,6 @@ static int astring(char **str) {
     ++p;
 
   int len = p - tk;
-
   if (!len) {
     if (str)
       *str = NULL;
@@ -201,7 +195,6 @@ static int match(char c) {
 
 INS** riscv_parse(char* filename, int *ret_sz) {
   fp = fopen(filename, "r");
-
   if (!fp) {
     *ret_sz = 0;
     return NULL;
@@ -211,16 +204,20 @@ INS** riscv_parse(char* filename, int *ret_sz) {
   p = buf;
   next();
 
+  /* Start parsing the title of the given object file. This is just for checking
+   * the name of the subroutines. Parsing error will not halt the parsing
+   * procedure but just give a warning message.
+   */
   if (!title()) {
     printf("File: %s contains no title\n", filename);
   }
 
   int max_ret_sz = 32, ins_idx = 0;
   INS **ins_arr = malloc(max_ret_sz * sizeof(INS *));
+
   while (fgets(buf, BUF_SZ, fp)) {
     p = buf;
     next();
-
     INS *i = malloc(sizeof(INS));
 
     /* Start parsing an instruction from the non-terminal Ins. If the line does
