@@ -126,8 +126,8 @@ INS ***findbb(INS **ins_arr, int ins_arr_sz, int *ret_sz, int **ret_bb_sz) {
   } 
 
   *ret_sz = bb_idx;
-  INS ***tmp_bb_list = realloc(bb_list, max_ret_sz * sizeof(INS **));  // shrink
-  int *tmp_bb_sz = realloc(bb_sz, max_ret_sz * sizeof(int));           // shrink
+  INS ***tmp_bb_list = realloc(bb_list, *ret_sz * sizeof(INS **));  // shrink
+  int *tmp_bb_sz = realloc(bb_sz, *ret_sz * sizeof(int));           // shrink
   if (tmp_bb_list)
     bb_list = tmp_bb_list;
   if (tmp_bb_sz)

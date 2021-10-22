@@ -44,7 +44,7 @@ static int writebb(INS*** bb, int bb_count, int* bb_len, int type, char* name) {
     free(tmp);
     return 0;
   }
-  printf("[writing] %s\n", fname);
+  printf("[Writing]\t%s\n", fname);
 
   // write instruction and bb data into file
   for (int i = 0; i < bb_count; ++i) {
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
     subnames[i] = split_routine(filenames[i], i, &fcount);
     for (int j = 0; j < fcount; ++j) { 
       int ins_arr_sz, bb_count, *bb_sz;
-      printf("[parsing] %s\n", subnames[i][j]);
+      printf("[Parsing]\t%s\n", subnames[i][j]);
       INS** ins_arr = (i == 0)? riscv_parse(subnames[i][j], &ins_arr_sz):
                                 aarch_parse(subnames[i][j], &ins_arr_sz);
       INS*** bb = findbb(ins_arr, ins_arr_sz, &bb_count, &bb_sz);
