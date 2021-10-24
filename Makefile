@@ -3,7 +3,7 @@ FLAGS := -Wextra -Wall -g
 target := comparator.out
 objs := $(patsubst %.c,%.o,$(wildcard *.c))
 AARCH := dumpfiles/aarch64_coremark.dump
-RICSV := dumpfiles/riscv64_coremark.dump
+RISCV := dumpfiles/riscv64_coremark.dump
 subdir := subroutines
 bbdir := bbroutines/a bbroutines/r bbroutines
 .PHONY: all clean run
@@ -18,7 +18,7 @@ $(target): $(objs)
 run: all
 	mkdir $(subdir) -p
 	mkdir $(bbdir) -p
-	./$(target) $(RICSV) $(AARCH)
+	./$(target) $(RISCV) $(AARCH)
 clean:
 	rm -rf $(subdir)
 	rm -rf $(bbdir)
