@@ -130,11 +130,12 @@ int main(int argc, char** argv) {
   int count = 0;
   for (int i = 0; i < fcount[0]; ++i) {
     for (int j = 0; j < fcount[1]; ++j) {
-      if (ins_len_arr[0][i] > ins_len_arr[1][j]
-          && strcmp(subnames[0][i], subnames[1][j]) == 0) {
-        printf("[%-30s]: RISCV: %4d,\tAARCH: %4d,\tdiff: %3d\n", 
+      if (strcmp(subnames[0][i], subnames[1][j]) == 0) {
+        int diff = ins_len_arr[0][i] - ins_len_arr[1][j];
+        float perc = (float)diff / ins_len_arr[1][j] * 100;
+        printf("[%-30s]: RISCV: %4d,\tAARCH: %4d,\tdiff: %3d (%.2f%%)\n", 
             &subnames[0][i][12], ins_len_arr[0][i], ins_len_arr[1][j],
-            ins_len_arr[0][i] - ins_len_arr[1][j]);
+            diff, perc);
         count++;
         break;
       }

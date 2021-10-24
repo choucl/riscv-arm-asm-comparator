@@ -87,6 +87,7 @@ INS** aarch_parse(char* filename, int* ret_sz) {
       ins_count++;
       continue; // label name 
     }
+    if (line[0] == 'D' || line[0] == '\n') break;
 
     int arg_start = 0;
     INS* cur_ins = malloc(sizeof(INS));
@@ -94,6 +95,10 @@ INS** aarch_parse(char* filename, int* ret_sz) {
 
     if (!sscanf(line, "%x: %*s %s%n", &cur_ins->addr, cur_ins->op, &arg_start))
       continue;
+    if (cur_ins->op[0] == '.') {
+      free(cur_ins);
+      break;
+    }
     cur_ins->type = findtype(cur_ins->op);
     
     char* arg_str = calloc((strlen(line) - arg_start + 1), sizeof(char));
