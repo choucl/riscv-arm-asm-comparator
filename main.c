@@ -92,17 +92,21 @@ int main(int argc, char** argv) {
   }
   char* filenames[2];
   char** subnames[2];
-  int fcount = 0;
+  int fcount[2] = {0};
+  int* ins_len_arr[2];
 
   for (int i = 0; i < 2; ++i) {
     filenames[i] = argv[i + 1];
-    subnames[i] = split_routine(filenames[i], i, &fcount);
-    for (int j = 0; j < fcount; ++j) { 
+    subnames[i] = split_routine(filenames[i], i, &fcount[i]);
+    int* tmp = malloc(sizeof(int) * fcount[i]); 
+    if (tmp) ins_len_arr[i] = tmp;
+    for (int j = 0; j < fcount[i]; ++j) { 
       int ins_arr_sz, bb_count, *bb_sz;
       printf("[Parsing]\t%s\n", subnames[i][j]);
       INS** ins_arr = (i == 0)? riscv_parse(subnames[i][j], &ins_arr_sz):
                                 aarch_parse(subnames[i][j], &ins_arr_sz);
       INS*** bb = findbb(ins_arr, ins_arr_sz, &bb_count, &bb_sz);
+      ins_len_arr[i][j] = ins_arr_sz;
       if (!writebb(bb, bb_count, bb_sz, i, subnames[i][j], ins_arr_sz)) {
         printf("\nwrite bb file of %s failed. skiped...\n", subnames[i][j]);
       }
@@ -110,5 +114,32 @@ int main(int argc, char** argv) {
       freeins(ins_arr, ins_arr_sz); // free all instructions
     }
   }
+
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < fcount[i]; ++j) {
+      subnames[i][j][strlen(subnames[i][j]) - 8] = '\0';
+    }
+  }
+  puts("\n===================== CONCLUSION =====================");
+  printf("Comparing files:\n");
+  printf("RISCV file: [%s]\n", filenames[0]);
+  printf("AARCH file: [%s]\n", filenames[1]);
+  printf("RISCV subroutine count: %d\n", fcount[0]);
+  printf("AARCH subroutine count: %d\n", fcount[1]);
+  printf("Subroutines that has more ins than AARCH:\n");
+  int count = 0;
+  for (int i = 0; i < fcount[0]; ++i) {
+    for (int j = 0; j < fcount[1]; ++j) {
+      if (ins_len_arr[0][i] > ins_len_arr[1][j]
+          && strcmp(subnames[0][i], subnames[1][j]) == 0) {
+        printf("[%-30s]: RISCV: %4d,\tAARCH: %4d,\tdiff: %3d\n", 
+            &subnames[0][i][12], ins_len_arr[0][i], ins_len_arr[1][j],
+            ins_len_arr[0][i] - ins_len_arr[1][j]);
+        count++;
+        break;
+      }
+    }
+  }
+  printf("Total counts: %d\n", count);
   return 0;
 }
