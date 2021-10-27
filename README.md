@@ -16,7 +16,7 @@ find the basic block in the subroutine and then write the basic-block-informatio
   $ make run AARCH=[arm asm file] RISCV=[riscv asm file]
   ```
   (compile only)
-  ```
+  ```bash
   $ make
   ```
 - Clean the output executable and output files
@@ -25,3 +25,9 @@ find the basic block in the subroutine and then write the basic-block-informatio
   ```
 - The output basic-block-information-contained files would be save under `bbroutines` folder, 
 where the `a` folder contains ARM output files and the `r` folder contains RISC-V output files
+
+## Output
+- The output files would be store under the `bbroutines` folder
+- The contents will be as below
+  ![bb output](https://i.imgur.com/0C93w3R.png)
+  ![bb conclusion](https://i.imgur.com/rqAwzHr.png)
