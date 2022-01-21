@@ -4,7 +4,7 @@
 #include <string.h>
 
 char** split_routine(char* filename, int type, int* ret_sz) {
-  char** subnames = malloc(sizeof(char*) * 250);
+  char** subnames = malloc(sizeof(char*) * 500);
   *ret_sz = 0;
 
   FILE* f = fopen(filename, "r");
@@ -66,10 +66,11 @@ char** split_routine(char* filename, int type, int* ret_sz) {
       }
     }
   }
-  free(line);
-  free(name);
-  char** tmp = realloc(subnames, sizeof(char*) * *ret_sz);
-  if (tmp) subnames = tmp;
+  //free(line);
+  //free(name);
+  char** tmp_s = realloc(subnames, sizeof(char*) * *ret_sz);
+  if (tmp_s) subnames = tmp_s;
+  puts("here");
   if (fo) fclose(fo);
   if (f) fclose(f);
   return subnames;
